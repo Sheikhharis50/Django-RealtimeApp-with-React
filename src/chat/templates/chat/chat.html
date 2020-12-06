@@ -10,13 +10,9 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!------ Include the above in your HEAD tag ---------->
-
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <!------ Include the above in your HEAD tag ---------->
-
     <link rel="shortcut icon" type="image/x-icon"
         href="//production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" />
     <link rel="mask-icon" type=""
@@ -98,8 +94,7 @@
             msgListTag.appendChild(imgTag);
             msgListTag.appendChild(pTag);
             document.querySelector('#chat-log').appendChild(msgListTag);
-            var m = document.querySelector('.messages');
-            m.scrollTop = m.scrollHeight;
+            $(".messages").animate({ scrollTop: $(document).height() }, "fast");
         }
 
         document.querySelector('#chat-message-input').focus();
