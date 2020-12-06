@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 dump.rdb
 src/static/admin/
+frontend/node_modules/
