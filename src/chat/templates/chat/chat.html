@@ -1,0 +1,126 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html class=''>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+
+    <link rel="shortcut icon" type="image/x-icon"
+        href="//production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" />
+    <link rel="mask-icon" type=""
+        href="//production-assets.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg"
+        color="#111" />
+    <link rel="canonical" href="https://codepen.io/emilcarlsson/pen/ZOQZaV?limit=all&page=74&q=contact+" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet'
+        type='text/css'>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'>
+    <link rel='stylesheet prefetch'
+        href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+</head>
+
+<body>
+
+    <div id="frame">
+        <div id="sidepanel">
+            {% include 'chat/partials/sidepanel.html' %}
+        </div>
+        <div class="content">
+            {% include 'chat/partials/contact-profile.html' %}
+            {% include 'chat/partials/messages.html' %}
+            {% include 'chat/partials/message-input.html' %}
+        </div>
+    </div>
+    <script src="{% static 'js/reconnecting-websocket.js' %}"></script>
+    <script src="https://use.typekit.net/hoy3lrg.js"></script>
+    <script>try { Typekit.load({ async: true }); } catch (e) { }</script>
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+    <script src="{% static 'js/chat.js' %}"></script>
+    <script>
+        const roomName = '{{ room_name }}';
+        const username = '{{ username }}';
+
+        const chatSocket = new ReconnectingWebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+        );
+
+        chatSocket.onopen = function (e) {
+            fetch_messages();
+        };
+
+        chatSocket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+
+            if (data["command"] === 'messages') {
+                for (let i = 0; i < data["messages"].length; i++) {
+                    create_message(data["messages"][i]);
+                }
+            } else if (data["command"] === 'new_message') {
+                create_message(data["message"]);
+            }
+
+        };
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        function fetch_messages() {
+            chatSocket.send(JSON.stringify({
+                'command': 'fetch_messages',
+            }));
+        }
+
+        function create_message(message) {
+            var author = message["author"];
+            var msgListTag = document.createElement('li');
+            var imgTag = document.createElement('img');
+            var pTag = document.createElement('p');
+            pTag.textContent = message["content"];
+            imgTag.src = 'http://emilcarlsson.se/assets/mikeross.png';
+            if (author === username) {
+                msgListTag.classList = "sent";
+            } else {
+                msgListTag.classList = "replies";
+            }
+            msgListTag.appendChild(imgTag);
+            msgListTag.appendChild(pTag);
+            document.querySelector('#chat-log').appendChild(msgListTag);
+            var m = document.querySelector('.messages');
+            m.scrollTop = m.scrollHeight;
+        }
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            e.preventDefault();
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'command': 'new_message',
+                'from': username
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+</body>
+
+</html>

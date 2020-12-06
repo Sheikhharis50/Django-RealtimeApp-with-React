@@ -32,5 +32,5 @@ class Message(models.Model):
     def __str__(self):
         return str(self.author.username)
 
-    def last_messages(self, num_records):
+    def last_messages(num_records):
         return Message.objects.order_by("-sent_date").all()[:num_records]
